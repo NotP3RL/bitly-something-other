@@ -2,6 +2,7 @@ import os
 import requests
 from urllib.parse import urlparse
 from dotenv import load_dotenv
+import argparse
 
 def shorten_link(headers, user_url):
     url = 'https://api-ssl.bitly.com/v4/bitlinks'
@@ -26,9 +27,13 @@ def is_bitlink(headers, user_url):
 
 if __name__ == '__main__':
     load_dotenv()
+    parser = argparse.ArgumentParser(
+        description='Программа сокращает ссылки'
+    )
+    parser.add_argument('url', help='Ваша ссылка')
+    args = parser.parse_args()
     headers = {'Authorization': f'Bearer {os.getenv("BITLY_TOKEN")}'}
-    url = input('Введите url: ')
-    parsed_url = urlparse(url)
+    parsed_url = urlparse(args.url)
     no_scheme_url = f'{parsed_url.netloc}{parsed_url.path}'
 
     if is_bitlink(headers, no_scheme_url):
@@ -38,6 +43,6 @@ if __name__ == '__main__':
             print('Ошибка при подсчете кликов')
     else:
         try:
-            print(f'Битлинк: {shorten_link(headers, url)}')
+            print(f'Битлинк: {shorten_link(headers, args.url)}')
         except requests.exceptions.HTTPError:
             print('Ошибка при сокращении ссылки')
